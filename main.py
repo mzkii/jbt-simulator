@@ -19,17 +19,18 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
     pygame.display.set_caption("jbt-simulator")
-    image = split_image(pygame.image.load(os.path.join('img', 'syoku.png')))
-    index = 0
+    maker = split_image(pygame.image.load(os.path.join('img', 'ripples.png')))
+    bg = pygame.transform.rotozoom(pygame.image.load(os.path.join('img', 'ble.png')), 0.0, 800 / 950)
+    time = pygame.time.get_ticks()
 
     while True:
         screen.fill((32, 32, 32))
+        screen.blit(bg, (0, 0))
 
         for i in range(32, 640, 160 + 32):
             for j in range(32, 640, 160 + 32):
-                screen.blit(image[index % 25], (j, i))
+                screen.blit(maker[int((pygame.time.get_ticks() - time) / 32) % 25], (j, i))
 
-        index = index + 1
         pygame.display.update()
 
         for event in pygame.event.get():
