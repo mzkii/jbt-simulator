@@ -8,7 +8,7 @@ class Music(object):
         music_str = ""
         for chart in self.charts:
             music_str += chart.to_string() + "\n--------------------------------\n"
-        return "Music(%s, %s, \n%s)" % (self.title, self.artist, music_str)
+        return "Music[%s, %s, \n%s]" % (self.title, self.artist, music_str)
 
     def print(self):
         print(self.to_string())

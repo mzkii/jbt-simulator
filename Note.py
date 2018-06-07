@@ -6,7 +6,7 @@ class Note(object):
         self.bpm = bpm
 
     def to_string(self):
-        return "Note(%s, %.4f, %02d, %.4f)" % (self.note, self.t, self.position, self.bpm)
+        return "Note[%s, %.4f, %02d, %.4f]" % (self.note, self.t, self.position, self.bpm)
 
     def print(self):
         print(self.to_string())

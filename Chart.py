@@ -8,7 +8,7 @@ class Chart(object):
         measure_str = ""
         for measure in self.measures:
             measure_str += measure.to_string() + "\n"
-        return "Chart(%s, %s, \n%s)" % (self.difficulty, self.level, measure_str)
+        return "Chart[%s, %s, \n%s]" % (self.difficulty, self.level, measure_str)
 
     def print(self):
         print(self.to_string())
