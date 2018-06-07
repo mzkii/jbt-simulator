@@ -51,17 +51,20 @@ def main():
                 sys.exit()
 
 
-## 譜面データ中に，exclusion_dict に存在しない文字列を除外して，1行ごとにリストとして返す．
+## 1譜面 charts型を返す
 
 def load(path):
     exclusion_dict = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿∧Ｖ＜＞口|ー'
     file = open(path, 'r')
-    lines = []
+    difficulty = Difficulty.BASIC
+    level = 3
+    measures = []
     for line in file.readlines():
         excluded_str = re.sub('[^%s]' % exclusion_dict, '', line)
         if len(excluded_str) > 0:
             lines.append(excluded_str)
-    return lines
+
+    return Chart(difficulty, level, measures)
 
 
 if __name__ == "__main__":
