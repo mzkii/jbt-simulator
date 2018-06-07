@@ -3,6 +3,11 @@ import pygame
 from gevent import os
 from pygame.locals import *
 import sys
+from Chart import Chart
+from Difficulty import Difficulty
+from Measure import Measure
+from Music import Music
+from Note import Note
 
 
 def split_image(image):
@@ -46,10 +51,11 @@ if __name__ == "__main__":
     ## main()
     file = open('fumen/sample.jbt', 'r')
     string = file.readlines()
-    bpm = 155
-    haku = 0
-    shosetsu = 0
-    for i in string:
-        for j in i:
-            if j == '⑯':
-                print(j, end="")
+    notes = [Note('①', 250, 1, 160), Note('②', 500, 2, 160), Note('③', 750, 3, 160)]
+    measures = [Measure(1, notes), Measure(2, notes), Measure(3, notes)]
+    charts = [
+        Chart(Difficulty.BASIC, 3, measures),
+        Chart(Difficulty.ADVANCED, 7, measures),
+        Chart(Difficulty.EXTREME, 9, measures)]
+    music = Music("hogehoge", "fugafuga", charts)
+    music.print()
