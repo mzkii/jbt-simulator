@@ -88,12 +88,83 @@ bpm が 60 なので，1分間に 60 拍存在することになる．
 - measure; 何小節目か
 - notes; measure 小節目に出現する Note 型の配列
 
-### Fumen型
+### Chart型
 - Measure型 の集合体
-- Fumen(detail: DETAIL, measures: List < Measure >)
-- detail; 譜面データの詳細
-- measures; 小節の配列 ... こいつがメイン
+- 譜面の全体を構成する
+- Chart(difficulty: Difficulty, level: Int, measures: List < Measure >)
+- difficulty; 難易度(BASIC or ADVANCED or EXTREME)
+- level; レベル(lv1 ~ lv10)
+- measures; 小節の配列
 
+### Music型
+- 楽曲情報を保持
+- 楽曲データに対して1対1に対応する
+- Music(title: String, artist: String, charts: List < Chart >)
+- title; 楽曲名
+- artist; アーティスト名
+- charts; 楽曲データ1曲分に対応する譜面データ(基本的には3難易度分存在する)
+
+```
+>> music.print()
+Music(hogehoge, fugafuga, 
+Chart(Difficulty.BASIC, 3, 
+Measure(1, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(2, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(3, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+)
+--------------------------------
+Chart(Difficulty.ADVANCED, 7, 
+Measure(1, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(2, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(3, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+)
+--------------------------------
+Chart(Difficulty.EXTREME, 9, 
+Measure(1, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(2, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(3, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+)
+--------------------------------
+)
+
+Process finished with exit code 0
+```
 ## 解析アルゴリズム
 - とりあえず，譜面ファイルを一行づつ読んでいく
 - 以下の例の2小節目のデータを読んでいくことを考える
