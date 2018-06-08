@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
+import itertools
 import re
-import string
 import time
-
 import pygame
+import sys
+
+from Chart import Chart
 from gevent import os
 from pygame.locals import *
-import sys
-from Chart import Chart
+
+from CoordinateTimeTuple import CoordinateTimeTuple
 from Difficulty import Difficulty
-from Measure import Measure
-from Music import Music
-from Note import Note
 
 
 def split_image(image):
@@ -54,17 +53,26 @@ def main():
 ## 1譜面 charts型を返す
 
 def load(path):
-    exclusion_dict = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿∧Ｖ＜＞口|ー'
+    position_dict = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿口'
+    arrow_dict = '∧Ｖ＜＞'
+    time_dict = '|ー'
+    dicts = position_dict + arrow_dict + time_dict
     file = open(path, 'r')
-    difficulty = Difficulty.BASIC
-    level = 3
-    measures = []
-    for line in file.readlines():
-        excluded_str = re.sub('[^%s]' % exclusion_dict, '', line)
-        if len(excluded_str) > 0:
-            lines.append(excluded_str)
 
-    return Chart(difficulty, level, measures)
+    measures = itertools.zip_longest(
+            *[iter([line for line in [re.sub('[^%s]' % dicts, '', line)
+                                      for line in file.readlines()] if len(line) > 0])] * 4)
+
+    measures = itertools.zip_longest(
+        *[iter([[CoordinateTimeTuple(line[:4], re.sub('[%s]' % '|', '', line[4:])) for line in measure]
+                for measure in measures])] * 4)
+
+    for measure in measures:
+        for line in measure:
+            for tuple in line:
+                print(tuple.to_string(), end="")
+            print()
+
 
 
 if __name__ == "__main__":
