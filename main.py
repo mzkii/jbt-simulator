@@ -94,35 +94,54 @@ def load(path):
     for measure in measures:
         for tuples in measure:
             notes = []
+
             # coordinate = maker座標からノーツを生成
-            for i, coordinate in enumerate(''.join([tuple.coordinate for tuple in tuples])):
+            for button_index, coordinate in enumerate(''.join([tuple.coordinate for tuple in tuples])):
                 if coordinate in '口':
+                    continue
+                flag = False
+
+                #  TODO coordinate の場合でも，ノーツが重複している時がある．⑥⑥のところ．
+                '''
+                15
+                ⑥⑥⑧口 |①ー②ー|
+                口⑧口⑧ |③④⑤ー|
+                ②③⑧④ |⑥ー⑦ー|
+                ①⑤⑦⑦ |⑧ー⑨⑩|
+                '''
+                for i, note in enumerate(notes):
+                    if note.note == coordinate:
+                        note.position = i + 1
+                        notes[i] = note
+                        flag = True
+                if flag:
                     continue
                 if coordinate in [note.note for note in notes]:  # time で既に note が追加されていた場合
                     note = notes[notes.index(coordinate)]
-                    note.position = i + 1
+                    note.position = button_index + 1
                     notes[notes.index(coordinate)] = note
                     continue
                 if coordinate in '∧Ｖ＜＞':  # TODO: ホールド対応
                     continue
-                print("coordinate append!!" + coordinate)
-                notes.append(Note(coordinate, None, i + 1, 0))  # position(i + 1) は分かっているが，time(t) は None．
+                notes.append(Note(coordinate, None, button_index + 1, 0))  # position(i + 1) は分かっているが，time(t) は None．
 
             # time = maker時間からノーツを生成
             for times in [tuple.time for tuple in tuples]:
                 for time in times:
                     if time in 'ー':
                         continue
-                    if time in [note.note for note in notes]:  # coordinate で既に note が追加されていた場合
-                        note = notes[notes.index(time)]
-                        note.t = 123
-                        notes[notes.index(time)] = note
+                    flag = False
+                    for i, note in enumerate(notes):
+                        if note.note == time:
+                            note.t = 123
+                            notes[i] = note
+                            flag = True
+                    if flag:
                         continue
-                    print("time append!!" + coordinate)
                     notes.append(Note(time, 123, None, 0))  # time(t) は分かっているが，position(i + 1) は None．
 
             for note in notes:
-                print(note.to_string(), ', ')
+                print(note.to_string(), end=', ')
             print()
 
 
