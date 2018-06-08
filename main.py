@@ -11,6 +11,7 @@ from pygame.locals import *
 
 from CoordinateTimeTuple import CoordinateTimeTuple
 from Difficulty import Difficulty
+from Note import Note
 
 
 def split_image(image):
@@ -88,10 +89,40 @@ def load(path):
         *[iter([[CoordinateTimeTuple(line[:4], re.sub('[%s]' % '|', '', line[4:])) for line in measure]
                 for measure in measures])] * 4)
 
+    ## tuple; 座標と時間をセットで表現している
+
     for measure in measures:
-        for line in measure:
-            for tuple in line:
-                print(tuple.to_string(), end="")
+        for tuples in measure:
+            notes = []
+            # coordinate = maker座標からノーツを生成
+            for i, coordinate in enumerate(''.join([tuple.coordinate for tuple in tuples])):
+                if coordinate in '口':
+                    continue
+                if coordinate in [note.note for note in notes]:  # time で既に note が追加されていた場合
+                    note = notes[notes.index(coordinate)]
+                    note.position = i + 1
+                    notes[notes.index(coordinate)] = note
+                    continue
+                if coordinate in '∧Ｖ＜＞':  # TODO: ホールド対応
+                    continue
+                print("coordinate append!!" + coordinate)
+                notes.append(Note(coordinate, None, i + 1, 0))  # position(i + 1) は分かっているが，time(t) は None．
+
+            # time = maker時間からノーツを生成
+            for times in [tuple.time for tuple in tuples]:
+                for time in times:
+                    if time in 'ー':
+                        continue
+                    if time in [note.note for note in notes]:  # coordinate で既に note が追加されていた場合
+                        note = notes[notes.index(time)]
+                        note.t = 123
+                        notes[notes.index(time)] = note
+                        continue
+                    print("time append!!" + coordinate)
+                    notes.append(Note(time, 123, None, 0))  # time(t) は分かっているが，position(i + 1) は None．
+
+            for note in notes:
+                print(note.to_string(), ', ')
             print()
 
 
