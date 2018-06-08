@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import itertools
+import math
 import re
 import time
 import pygame
@@ -27,21 +28,53 @@ def split_image(image):
 
 def main():
     pygame.init()
+    pygame.mixer.quit()
+    pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=1024)
     screen = pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
     pygame.display.set_caption("jbt-simulator")
     raw_maker = pygame.image.load(os.path.join('img', 'knit.png'))
     raw_maker.set_colorkey((255, 255, 255))
     maker = split_image(raw_maker)
     bg = pygame.transform.rotozoom(pygame.image.load(os.path.join('img', 'ble.png')), 0.0, 800 / 950)
-    time = pygame.time.get_ticks()
+
+    handclaps = [pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav"),
+                 pygame.mixer.Sound("handclap.wav")]
+
+    handclap_index = 0
+    measures = load('fumen/sample.jbt')
+
+    for i, measure in enumerate(measures):
+        notes = ''
+        for note in measure:
+            notes += note.to_string() + ', '
+        print(i, notes)
+
+    times = []
+    for measure in measures:
+        for note in measure:
+            times.append(note.t)
+
+    print(times)
+    index = 0
+
+    pygame.mixer.music.load("True Blue.mp3")
+    pygame.mixer.music.play(-1)
 
     while True:
         screen.fill((32, 32, 32))
         screen.blit(bg, (0, 0))
-
-        for i in range(32, 640, 160 + 32):
-            for j in range(32, 640, 160 + 32):
-                screen.blit(maker[int((pygame.time.get_ticks() - time) / 40) % 25], (j, i))
+        if pygame.mixer.music.get_pos() >= times[index]:
+            handclaps[handclap_index].play()
+            handclap_index = (handclap_index + 1) % len(handclaps)
+            index = index + 1
 
         pygame.display.update()
 
@@ -51,33 +84,11 @@ def main():
                 sys.exit()
 
 
-## 1譜面 charts型を返す
-'''
-Measure(1, 
-Note(①, 250.0000, 01, 160.0000)
-Note(②, 500.0000, 02, 160.0000)
-Note(③, 750.0000, 03, 160.0000)
-)
-Measure(2, 
-Note(①, 250.0000, 01, 160.0000)
-Note(②, 500.0000, 02, 160.0000)
-Note(③, 750.0000, 03, 160.0000)
-)
-Measure(3, 
-Note(①, 250.0000, 01, 160.0000)
-Note(②, 500.0000, 02, 160.0000)
-Note(③, 750.0000, 03, 160.0000)
-)
-
-... 以下続く
-
-'''
-
-
+## 1譜面 measures を返す
 def load(path):
     position_dict = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿口'
     arrow_dict = '∧Ｖ＜＞'
-    time_dict = '|ー'
+    time_dict = '|－'
     dicts = position_dict + arrow_dict + time_dict
 
     file = open(path, 'r')
@@ -95,78 +106,35 @@ def load(path):
 
         # 4拍( = 一小節) 貯まったら次の小節にチェンジ．
         if len(times) >= 4 and len(''.join(coordinates)) % 16 == 0:
-            coordinate = ''.join(times).replace('ー', '')
+            coordinate = ''.join(times).replace('－', '')
             time_dict = ''.join(coordinates).replace('口', '')
             diff = coordinate.translate(str.maketrans('', '', time_dict))
             if len(diff) <= 0:
-                measures.append([' '.join(list(coordinates)), list(times)])
+                measures.append([''.join(list(coordinates)), list(times)])
                 del times[:]
                 del coordinates[:]
 
+    total_time = 400
+    bpm = 164
     for i, measure in enumerate(measures):
-        print('{} {}'.format(i + 1, measure))
-
-    return
-
-
-'''
-    for measure in measures:
-        for tuples in measure:
-            notes = []
-
-            # time = maker時間からノーツを生成
-            for times in [tuple.time for tuple in tuples]:
-                for time in times:  # times; ⑨ーーー, time; ⑨
-                    if time in 'ー':
-                        continue
-                    flag = False
-                    for i, note in enumerate(notes):
-                        if note.note == time:
-                            note.t = 123  # TODO 表示タイミングを求める．
-                            notes[i] = note
-                            flag = True
-                    if flag:
-                        continue
-
-                    # time(t) は分かっているが，position(i + 1) は None．
-                    # Note(①などの記号，表示タイミング，
-                    notes.append(Note(time, 123, None, 0))
-
-
-            # coordinate = maker座標からノーツを生成
-            for button_index, coordinate in enumerate(''.join([tuple.coordinate for tuple in tuples])):
-                if coordinate in '口':
+        notes = []
+        coordinate = measure[0]
+        times = measure[1]
+        for time in times:
+            for c in time:
+                split_size = len(time)
+                total_time += int(math.floor(60000.0 / bpm / split_size))  # 1note ごとに 1ms 程度ずれる
+                if c == '－':
                     continue
-                flag = False
+                notes.append(Note(c, total_time, [], bpm))
+        measures[i] = list(notes)
 
-                #  TODO coordinate の場合でも，ノーツが重複している時がある．⑥⑥のところ．
-                
-                for i, note in enumerate(notes):
-                    if note.note == coordinate:
-                        note.position = i + 1
-                        notes[i] = note
-                        flag = True
-                if flag:
-                    continue
-                if coordinate in [note.note for note in notes]:  # time で既に note が追加されていた場合
-                    note = notes[notes.index(coordinate)]
-                    note.position = button_index + 1
-                    notes[notes.index(coordinate)] = note
-                    continue
-                if coordinate in '∧Ｖ＜＞':  # TODO: ホールド対応
-                    continue
-                notes.append(Note(coordinate, None, button_index + 1, 0))  # position(i + 1) は分かっているが，time(t) は None．
-
-            for note in notes:
-                print(note.to_string(), end=', ')
-            print()
-'''
+    return measures
 
 
 if __name__ == "__main__":
-    ## main()
     start = time.time()
-    load('fumen/sample.jbt')
+    main()
     elapsed_time = time.time() - start
     print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
 '''
