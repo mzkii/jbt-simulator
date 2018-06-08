@@ -51,6 +51,27 @@ def main():
 
 
 ## 1譜面 charts型を返す
+'''
+Measure(1, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(2, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+Measure(3, 
+Note(①, 250.0000, 01, 160.0000)
+Note(②, 500.0000, 02, 160.0000)
+Note(③, 750.0000, 03, 160.0000)
+)
+
+... 以下続く
+
+'''
+
 
 def load(path):
     position_dict = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿口'
@@ -60,8 +81,8 @@ def load(path):
     file = open(path, 'r')
 
     measures = itertools.zip_longest(
-            *[iter([line for line in [re.sub('[^%s]' % dicts, '', line)
-                                      for line in file.readlines()] if len(line) > 0])] * 4)
+        *[iter([line for line in [re.sub('[^%s]' % dicts, '', line)
+                                  for line in file.readlines()] if len(line) > 0])] * 4)
 
     measures = itertools.zip_longest(
         *[iter([[CoordinateTimeTuple(line[:4], re.sub('[%s]' % '|', '', line[4:])) for line in measure]
@@ -72,7 +93,6 @@ def load(path):
             for tuple in line:
                 print(tuple.to_string(), end="")
             print()
-
 
 
 if __name__ == "__main__":
