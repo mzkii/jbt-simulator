@@ -79,21 +79,59 @@ def load(path):
     arrow_dict = '∧Ｖ＜＞'
     time_dict = '|ー'
     dicts = position_dict + arrow_dict + time_dict
+
     file = open(path, 'r')
+    lines = [line for line in [re.sub('[^%s]' % dicts, '', line) for line in file.readlines()] if len(line) > 0]
+    tuples = [CoordinateTimeTuple(line[:4], re.sub('[%s]' % '|', '', line[4:])) for line in lines]
 
-    measures = itertools.zip_longest(
-        *[iter([line for line in [re.sub('[^%s]' % dicts, '', line)
-                                  for line in file.readlines()] if len(line) > 0])] * 4)
+    times = []
+    coordinates = []
+    measures = []
 
-    measures = itertools.zip_longest(
-        *[iter([[CoordinateTimeTuple(line[:4], re.sub('[%s]' % '|', '', line[4:])) for line in measure]
-                for measure in measures])] * 4)
+    for tuple in tuples:
+        coordinates.append(tuple.coordinate)
+        if len(tuple.time) > 0:
+            times.append(tuple.time)
 
-    ## tuple; 座標と時間をセットで表現している
+        # 4拍( = 一小節) 貯まったら次の小節にチェンジ．
+        if len(times) >= 4 and len(''.join(coordinates)) % 16 == 0:
+            coordinate = ''.join(times).replace('ー', '')
+            time_dict = ''.join(coordinates).replace('口', '')
+            diff = coordinate.translate(str.maketrans('', '', time_dict))
+            if len(diff) <= 0:
+                measures.append([' '.join(list(coordinates)), list(times)])
+                del times[:]
+                del coordinates[:]
 
+    for i, measure in enumerate(measures):
+        print('{} {}'.format(i + 1, measure))
+
+    return
+
+
+'''
     for measure in measures:
         for tuples in measure:
             notes = []
+
+            # time = maker時間からノーツを生成
+            for times in [tuple.time for tuple in tuples]:
+                for time in times:  # times; ⑨ーーー, time; ⑨
+                    if time in 'ー':
+                        continue
+                    flag = False
+                    for i, note in enumerate(notes):
+                        if note.note == time:
+                            note.t = 123  # TODO 表示タイミングを求める．
+                            notes[i] = note
+                            flag = True
+                    if flag:
+                        continue
+
+                    # time(t) は分かっているが，position(i + 1) は None．
+                    # Note(①などの記号，表示タイミング，
+                    notes.append(Note(time, 123, None, 0))
+
 
             # coordinate = maker座標からノーツを生成
             for button_index, coordinate in enumerate(''.join([tuple.coordinate for tuple in tuples])):
@@ -102,13 +140,7 @@ def load(path):
                 flag = False
 
                 #  TODO coordinate の場合でも，ノーツが重複している時がある．⑥⑥のところ．
-                '''
-                15
-                ⑥⑥⑧口 |①ー②ー|
-                口⑧口⑧ |③④⑤ー|
-                ②③⑧④ |⑥ー⑦ー|
-                ①⑤⑦⑦ |⑧ー⑨⑩|
-                '''
+                
                 for i, note in enumerate(notes):
                     if note.note == coordinate:
                         note.position = i + 1
@@ -125,24 +157,10 @@ def load(path):
                     continue
                 notes.append(Note(coordinate, None, button_index + 1, 0))  # position(i + 1) は分かっているが，time(t) は None．
 
-            # time = maker時間からノーツを生成
-            for times in [tuple.time for tuple in tuples]:
-                for time in times:
-                    if time in 'ー':
-                        continue
-                    flag = False
-                    for i, note in enumerate(notes):
-                        if note.note == time:
-                            note.t = 123
-                            notes[i] = note
-                            flag = True
-                    if flag:
-                        continue
-                    notes.append(Note(time, 123, None, 0))  # time(t) は分かっているが，position(i + 1) は None．
-
             for note in notes:
                 print(note.to_string(), end=', ')
             print()
+'''
 
 
 if __name__ == "__main__":
