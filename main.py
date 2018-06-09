@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
-import itertools
-import math
 import re
 import time
 import pygame
 import sys
-
-from Chart import Chart
 from gevent import os
 from pygame.locals import *
-
 from CoordinateTimeTuple import CoordinateTimeTuple
-from Difficulty import Difficulty
 from Note import Note
 
 
@@ -36,44 +30,24 @@ def main():
     raw_maker.set_colorkey((255, 255, 255))
     maker = split_image(raw_maker)
     bg = pygame.transform.rotozoom(pygame.image.load(os.path.join('img', 'ble.png')), 0.0, 800 / 950)
-
-    handclaps = [pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav"),
-                 pygame.mixer.Sound("handclap.wav")]
-
-    handclap_index = 0
+    handclap = pygame.mixer.Sound("handclap.wav")
     measures = load('fumen/sample.jbt')
 
-    for i, measure in enumerate(measures):
-        notes = ''
-        for note in measure:
-            notes += note.to_string() + ', '
-        print(i, notes)
-
-    times = []
+    notes = []
     for measure in measures:
         for note in measure:
-            times.append(note.t)
+            notes.append(note)
 
-    print(times)
     index = 0
 
-    pygame.mixer.music.load("True Blue.mp3")
+    pygame.mixer.music.load("Vermilion.mp3")
     pygame.mixer.music.play(-1)
 
     while True:
         screen.fill((32, 32, 32))
         screen.blit(bg, (0, 0))
-        if pygame.mixer.music.get_pos() >= times[index]:
-            handclaps[handclap_index].play()
-            handclap_index = (handclap_index + 1) % len(handclaps)
+        if index < len(notes) and pygame.mixer.music.get_pos() >= notes[index].t:
+            handclap.play()
             index = index + 1
 
         pygame.display.update()
@@ -114,19 +88,25 @@ def load(path):
                 del times[:]
                 del coordinates[:]
 
-    total_time = 400
-    bpm = 164
+    total_time = 210
+    bpm = 143
     for i, measure in enumerate(measures):
         notes = []
-        coordinate = measure[0]
+        ## 0 ['口口④口口口口③口口②口口口口①', ['－－－－', '－－－－', '－－－－', '①②③④']]
+        coordinates = measure[0]
         times = measure[1]
         for time in times:
             for c in time:
                 split_size = len(time)
-                total_time += int(math.floor(60000.0 / bpm / split_size))  # 1note ごとに 1ms 程度ずれる
+                total_time += 60000.0 / bpm / split_size  # 1note ごとに 1ms 程度ずれる
                 if c == '－':
                     continue
                 notes.append(Note(c, total_time, [], bpm))
+
+        for j, note in enumerate(notes):
+            note.position = [(i % 16) + 1 for i, x in enumerate(coordinates) if x == note.note]
+            notes[j] = note
+
         measures[i] = list(notes)
 
     return measures
