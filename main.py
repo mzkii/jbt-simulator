@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import math
+
 import numpy as np
 import re
 import time
@@ -40,8 +42,16 @@ def get_marker_frames(notes, music_pos):
     for note in notes:
         if music_pos - 40 * 25 <= note.t < music_pos:
             for position in note.positions:
-                frames[position - 1].append(int((music_pos - note.t) / 40))
-    return frames
+                try:
+                    frame = int(math.floor((music_pos - note.t) / 40))
+                    if 0 <= frame < 25:
+                        frames[position - 1].append(frame)
+                    else:
+                        raise ValueError("index out of range!! frame = {}".format(frame))
+                except ValueError as e:
+                    print(e)
+
+    return list(frames)
 
 
 def main():
@@ -67,7 +77,7 @@ def main():
 
     TRACK_END = USEREVENT + 1
     pygame.mixer.music.set_endevent(TRACK_END)
-    pygame.mixer.music.load("True Blue.mp3")
+    pygame.mixer.music.load("Stand Alone Beat Masta.mp3")
     pygame.mixer.music.play()
 
     positions = []
@@ -82,7 +92,8 @@ def main():
         # print(get_marker_frames(notes, pygame.mixer.music.get_pos()))
         for i, frames in enumerate(get_marker_frames(notes, pygame.mixer.music.get_pos())):
             for frame in frames:
-                screen.blit(maker[frame], (positions[i][0], positions[i][1]))
+                p = (positions[i][0], positions[i][1])
+                screen.blit(maker[frame], p)
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -125,8 +136,8 @@ def load(path):
                 del times[:]
                 del coordinates[:]
 
-    total_time = -300
-    bpm = 164
+    total_time = 0
+    bpm = 200
     for i, measure in enumerate(measures):
         notes = []
         ## 0 ['口口④口口口口③口口②口口口口①', ['－－－－', '－－－－', '－－－－', '①②③④']]
