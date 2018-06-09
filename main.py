@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 import re
 import time
 import pygame
@@ -20,13 +21,37 @@ def split_image(image):
     return imageList
 
 
+def get_nearest_value(list, num):
+    """
+    概要: リストからある値に最も近い値を返却する関数
+    @param list: データ配列
+    @param num: 対象値
+    @return 対象値に最も近い値
+    """
+
+    # リスト要素と対象値の差分を計算し最小値のインデックスを取得
+    idx = np.abs(np.asarray(list) - num).argmin()
+    return list[idx]
+
+
+def get_marker_frames(notes, music_pos):
+    # len(frames) = 16; [[13], [12], [10], [10, 15], [], [], [], [], [], [], [], [], [], [], [], []]
+    frames = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
+    for note in notes:
+        if music_pos - 36 * 25 <= note.t < music_pos:
+            for position in note.positions:
+                frames[position - 1].append(int((music_pos - note.t) / 36))
+    return frames
+
+
 def main():
     pygame.init()
     pygame.mixer.quit()
     pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=1024)
     screen = pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
     pygame.display.set_caption("jbt-simulator")
-    raw_maker = pygame.image.load(os.path.join('img', 'syoku.png'))
+    raw_maker = pygame.image.load(os.path.join('img', 'ripples.png'))
+    front = pygame.image.load(os.path.join('img', 'front.png'))
     raw_maker.set_colorkey((255, 255, 255))
     maker = split_image(raw_maker)
     bg = pygame.transform.rotozoom(pygame.image.load(os.path.join('img', 'ble.png')), 0.0, 800 / 950)
@@ -38,36 +63,39 @@ def main():
         for note in measure:
             notes.append(note)
 
-    index = 0
+    for note in notes:
+        note.print()
 
+    TRACK_END = USEREVENT + 1
+    pygame.mixer.music.set_endevent(TRACK_END)
     pygame.mixer.music.load("Vermilion.mp3")
-    pygame.mixer.music.play(-1)
+    pygame.mixer.music.play()
+
+    positions = []
+    for i in range(32, 640, 160 + 32):
+        for j in range(32, 640, 160 + 32):
+            positions.append([j, i])
 
     while True:
-        screen.fill((32, 32, 32))
-        screen.blit(bg, (0, 0))
+        screen.fill((16, 16, 16))
+        # screen.blit(bg, (0, 0))
 
-        buttons = []
-
-        if index < len(notes) and pygame.mixer.music.get_pos() >= notes[index].t:
-            buttons = notes[index].position
-            # handclap.play()
-            index = index + 1
-
-        for button in buttons:
-            count = 1
-            for i in range(32, 640, 160 + 32):
-                for j in range(32, 640, 160 + 32):
-                    if button == count:
-                        screen.blit(maker[15], (j, i))
-                    count = count + 1
-
-        pygame.display.update()
+        # print(get_marker_frames(notes, pygame.mixer.music.get_pos()))
+        for i, frames in enumerate(get_marker_frames(notes, pygame.mixer.music.get_pos())):
+            for frame in frames:
+                screen.blit(maker[frame], (positions[i][0], positions[i][1]))
 
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == TRACK_END:
+                pygame.mixer.music.stop()
+                pygame.mixer.music.play()
+
+        screen.blit(front, (0, 0))
+        pygame.display.update()
+
 
 
 ## 1譜面 measures を返す
@@ -89,8 +117,6 @@ def load(path):
         coordinates.append(tuple.coordinate)
         if len(tuple.time) > 0:
             times.append(tuple.time)
-
-        # 4拍( = 一小節) 貯まったら次の小節にチェンジ．
         if len(times) >= 4 and len(''.join(coordinates)) % 16 == 0:
             coordinate = ''.join(times).replace('－', '')
             time_dict = ''.join(coordinates).replace('口', '')
@@ -100,7 +126,7 @@ def load(path):
                 del times[:]
                 del coordinates[:]
 
-    total_time = 210
+    total_time = -2050
     bpm = 143
     for i, measure in enumerate(measures):
         notes = []
@@ -116,7 +142,7 @@ def load(path):
                 notes.append(Note(c, total_time, [], bpm))
 
         for j, note in enumerate(notes):
-            note.position = [(i % 16) + 1 for i, x in enumerate(coordinates) if x == note.note]
+            note.positions = [(i % 16) + 1 for i, x in enumerate(coordinates) if x == note.note]
             notes[j] = note
 
         measures[i] = list(notes)
