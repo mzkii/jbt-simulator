@@ -38,19 +38,18 @@ def get_marker_frames(notes, music_pos):
     # len(frames) = 16; [[13], [12], [10], [10, 15], [], [], [], [], [], [], [], [], [], [], [], []]
     frames = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
     for note in notes:
-        if music_pos - 36 * 25 <= note.t < music_pos:
+        if music_pos - 40 * 25 <= note.t < music_pos:
             for position in note.positions:
-                frames[position - 1].append(int((music_pos - note.t) / 36))
+                frames[position - 1].append(int((music_pos - note.t) / 40))
     return frames
 
 
 def main():
-    pygame.init()
     pygame.mixer.quit()
     pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=1024)
     screen = pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
     pygame.display.set_caption("jbt-simulator")
-    raw_maker = pygame.image.load(os.path.join('img', 'ripples.png'))
+    raw_maker = pygame.image.load(os.path.join('img', 'blur.png'))
     front = pygame.image.load(os.path.join('img', 'front.png'))
     raw_maker.set_colorkey((255, 255, 255))
     maker = split_image(raw_maker)
@@ -68,7 +67,7 @@ def main():
 
     TRACK_END = USEREVENT + 1
     pygame.mixer.music.set_endevent(TRACK_END)
-    pygame.mixer.music.load("Vermilion.mp3")
+    pygame.mixer.music.load("True Blue.mp3")
     pygame.mixer.music.play()
 
     positions = []
@@ -126,8 +125,8 @@ def load(path):
                 del times[:]
                 del coordinates[:]
 
-    total_time = -2050
-    bpm = 143
+    total_time = -300
+    bpm = 164
     for i, measure in enumerate(measures):
         notes = []
         ## 0 ['口口④口口口口③口口②口口口口①', ['－－－－', '－－－－', '－－－－', '①②③④']]
