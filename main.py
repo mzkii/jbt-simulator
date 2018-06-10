@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 import math
-
 import numpy as np
-import time
 import pygame
-import sys
+import utils
 from gevent import os
 from pygame.locals import *
-
 from ChartAnalyzer import load
 
 
+@utils.measure
 def split_image(image):
     imageList = []
     for i in range(0, 800, 160):
@@ -22,6 +20,7 @@ def split_image(image):
     return imageList
 
 
+@utils.measure
 def get_nearest_value(list, num):
     """
     概要: リストからある値に最も近い値を返却する関数
@@ -51,6 +50,7 @@ def get_marker_frames(notes, music_pos):
     return list(within_notes)
 
 
+@utils.measure
 def play(music, fumen):
     screen = pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
     front_mask = pygame.image.load(os.path.join('img', 'front.png'))
@@ -76,17 +76,16 @@ def play(music, fumen):
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+                return
             if event.type == TRACK_END:
                 pygame.mixer.music.stop()
                 pygame.mixer.music.play()
 
         screen.blit(front_mask, (0, 0))
-
         pygame.display.update()
 
 
+@utils.measure
 def pygame_init():
     pygame.mixer.quit()
     pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=1024)
@@ -94,7 +93,5 @@ def pygame_init():
 
 
 if __name__ == "__main__":
-    start = time.time()
     pygame_init()
     play('Stand Alone Beat Masta.mp3', 'fumen/sample.jbt')
-    print("elapsed_time:{0}".format(time.time() - start) + "[sec]")

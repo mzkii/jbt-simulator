@@ -1,26 +1,10 @@
-import functools
-
 from CoordinateTimeTuple import CoordinateTimeTuple
 from Note import Note
 import re
-import time
+import utils
 
 
-def measure(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kargs):
-        start_time = time.time()
-
-        result = func(*args, **kargs)
-
-        execution_time = time.time() - start_time
-        print(f'{func.__name__}: {execution_time}')
-        return result
-
-    return wrapper
-
-
-@measure
+@utils.measure
 def load(path):
     file = open(path, 'r')
 
