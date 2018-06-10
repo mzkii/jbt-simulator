@@ -1,10 +1,11 @@
-from CoordinateTimeTuple import CoordinateTimeTuple
-from Note import Note
+# -*- coding: utf-8 -*-
+from models.CoordinateTimeTuple import CoordinateTimeTuple
+from models.Note import Note
 import re
-import utils
+from utils import processing_measure
 
 
-@utils.measure
+@processing_measure.measure
 def load(path):
     file = open(path, 'r')
 

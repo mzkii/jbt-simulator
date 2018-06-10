@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 class Music(object):
     def __init__(self, title, artist, charts):
         self.title = title

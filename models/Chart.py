@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 class Chart(object):
     def __init__(self, difficulty, level, measures):
         self.difficulty = difficulty

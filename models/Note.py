@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 class Note(object):
     def __init__(self, note, t, positions, bpm):
         self.note = note

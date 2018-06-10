@@ -4,13 +4,13 @@ import sys
 
 import numpy as np
 import pygame
-import utils
+from utils import processing_measure
 from gevent import os
 from pygame.locals import *
-from ChartAnalyzer import load
+from utils.chartAnalyzer import load
 
 
-@utils.measure
+@processing_measure.measure
 def split_image(image):
     imageList = []
     for i in range(0, 800, 160):
@@ -22,7 +22,7 @@ def split_image(image):
     return imageList
 
 
-@utils.measure
+@processing_measure.measure
 def get_nearest_value(list, num):
     """
     概要: リストからある値に最も近い値を返却する関数
@@ -52,13 +52,13 @@ def get_marker_frames(notes, music_pos):
     return list(within_notes)
 
 
-@utils.measure
+@processing_measure.measure
 def play(music, fumen):
     screen = pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
     front_mask = pygame.image.load(os.path.join('img', 'front.png'))
     maker_frames = split_image(pygame.image.load(os.path.join('img', 'blur.png')).convert_alpha())
     background = pygame.transform.rotozoom(pygame.image.load(os.path.join('img', 'ble.png')), 0.0, 800 / 950)
-    handclap = pygame.mixer.Sound("handclap.wav")
+    handclap = pygame.mixer.Sound('soundeffects/handclap.wav')
     notes = load(fumen)
 
     PANEL_POSITIONS = [(y, x) for x in range(32, 640, 160 + 32) for y in range(32, 640, 160 + 32)]
@@ -87,7 +87,7 @@ def play(music, fumen):
         pygame.display.update()
 
 
-@utils.measure
+@processing_measure.measure
 def pygame_init():
     pygame.mixer.quit()
     pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=1024)

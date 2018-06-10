@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 class Measure(object):
     def __init__(self, measure, notes):
         self.measure = measure

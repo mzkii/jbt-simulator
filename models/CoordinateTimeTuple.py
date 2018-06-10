@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 class CoordinateTimeTuple(object):
     def __init__(self, coordinate, time):
         self.coordinate = coordinate
