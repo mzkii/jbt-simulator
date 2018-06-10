@@ -7,7 +7,7 @@ import pygame
 from utils import processing_measure
 from gevent import os
 from pygame.locals import *
-from utils.chartAnalyzer import load
+from utils.chart_analyzer import load
 
 
 @processing_measure.measure
