@@ -57,18 +57,9 @@ def play(music, fumen):
     maker_frames = split_image(pygame.image.load(os.path.join('img', 'blur.png')).convert_alpha())
     background = pygame.transform.rotozoom(pygame.image.load(os.path.join('img', 'ble.png')), 0.0, 800 / 950)
     handclap = pygame.mixer.Sound("handclap.wav")
+    notes = load(fumen)
 
-    measures = load(fumen)
-    notes = []
-    for measure in measures:
-        for note in measure:
-            notes.append(note)
-            note.print()
-
-    PANEL_POSITIONS = []
-    for i in range(32, 640, 160 + 32):
-        for j in range(32, 640, 160 + 32):
-            PANEL_POSITIONS.append([j, i])
+    PANEL_POSITIONS = [(y, x) for x in range(32, 640, 160 + 32) for y in range(32, 640, 160 + 32)]
 
     TRACK_END = USEREVENT + 1
     pygame.mixer.music.set_endevent(TRACK_END)
@@ -92,6 +83,7 @@ def play(music, fumen):
                 pygame.mixer.music.play()
 
         screen.blit(front_mask, (0, 0))
+
         pygame.display.update()
 
 

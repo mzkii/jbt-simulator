@@ -1,8 +1,26 @@
+import functools
+
 from CoordinateTimeTuple import CoordinateTimeTuple
 from Note import Note
 import re
+import time
 
 
+def measure(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kargs):
+        start_time = time.time()
+
+        result = func(*args, **kargs)
+
+        execution_time = time.time() - start_time
+        print(f'{func.__name__}: {execution_time}')
+        return result
+
+    return wrapper
+
+
+@measure
 def load(path):
     file = open(path, 'r')
 
@@ -33,8 +51,8 @@ def load(path):
 
     total_time = 0
     bpm = 200
+    notes = []
     for i, measure in enumerate(measures):
-        notes = []
         coordinates = measure[0]
         times = measure[1]
         for time in times:
@@ -43,12 +61,6 @@ def load(path):
                 total_time += 60000.0 / bpm / split_size
                 if c == '－':
                     continue
-                notes.append(Note(c, total_time, [], bpm))
+                notes.append(Note(c, total_time, [(i % 16) + 1 for i, x in enumerate(coordinates) if x == c], bpm))
 
-        for j, note in enumerate(notes):
-            note.positions = [(i % 16) + 1 for i, x in enumerate(coordinates) if x == note.note]
-            notes[j] = note
-
-        measures[i] = list(notes)
-
-    return measures
+    return notes
