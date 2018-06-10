@@ -95,7 +95,7 @@ def pygame_init():
 
 
 if __name__ == "__main__":
-    if 2 <= len(sys.argv) <= 3:
+    if len(sys.argv) == 3:
         pygame_init()
         play(sys.argv[1], sys.argv[2])
     else:
