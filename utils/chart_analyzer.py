@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from models.CoordinateTimeTuple import CoordinateTimeTuple
-from models.Note import Note
+from models.coordinate_time_tuple import CoordinateTimeTuple
+from models.note import Note
 import re
 from utils import processing_measure
 
