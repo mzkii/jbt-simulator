@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
+import sys
+
 import numpy as np
 import pygame
 import utils
@@ -93,5 +95,8 @@ def pygame_init():
 
 
 if __name__ == "__main__":
-    pygame_init()
-    play('Stand Alone Beat Masta.mp3', 'fumen/sample.jbt')
+    if 2 <= len(sys.argv) <= 3:
+        pygame_init()
+        play(sys.argv[1], sys.argv[2])
+    else:
+        print('Invalid argument error!!')
