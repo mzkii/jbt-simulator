@@ -42,7 +42,7 @@ def load(path):
         for time in times:
             for c in time:
                 split_size = len(time)
-                total_time += 60000.0 / bpm / split_size
+                total_time += 60000.0 / bpm / split_size  # TODO 口⑤口口 |④－| の表記の対処法
                 if c == '－':
                     continue
                 notes.append(Note(c, total_time, [(i % 16) + 1 for i, x in enumerate(coordinates) if x == c], bpm))
