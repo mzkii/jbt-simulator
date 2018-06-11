@@ -1,6 +1,6 @@
 ## jbt-simulator
 **jubeat-memo 形式** の譜面を mac/windows 上で再生するシミュレータです．
-
+![sample01](https://github.com/mzkii/jbt-simulator/blob/master/screenshots/sample01.png)
 
 ## [WIP] 機能👷
 基本的に，jubeatLab に準拠する．
