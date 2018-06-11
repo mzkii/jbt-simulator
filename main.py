@@ -54,10 +54,11 @@ def get_marker_frames(notes, music_pos):
 
 @processing_measure.measure
 def play(music, fumen):
-    screen = pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
+    screen = pygame.display.get_surface()
+    pygame.display.set_caption("jbt-simulator")
     clock = pygame.time.Clock()
     front_mask = pygame.image.load(os.path.join('img', 'front.png'))
-    maker_frames = split_image(pygame.image.load(os.path.join('img', 'blur.png')).convert_alpha())
+    maker_frames = split_image(pygame.image.load(os.path.join('img', 'ripples.png')).convert_alpha())
     background = pygame.transform.rotozoom(pygame.image.load(os.path.join('img', 'ble.png')), 0.0, 800 / 950)
     handclap = pygame.mixer.Sound('soundeffects/handclap.wav')
     font = pygame.font.Font(None, 32)
@@ -93,10 +94,10 @@ def play(music, fumen):
 
 @processing_measure.measure
 def pygame_init():
-    pygame.mixer.quit()
+    pygame.display.set_mode((640 + 32 * 5, 640 + 32 * 5))
+    pygame.display.set_caption("jbt-simulator")
     pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=1024)
     pygame.font.init()
-    pygame.display.set_caption("jbt-simulator")
 
 
 if __name__ == "__main__":
