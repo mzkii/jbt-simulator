@@ -1,5 +1,10 @@
-## jbt-simulator
+## About
+![icon](https://github.com/mzkii/jbt-simulator/blob/master/img/icon.png)
+
 [#memo2](http://yosh52.web.fc2.com/jubeat/fumenformat.html) 形式の譜面を mac/windows 上で再生するシミュレータです．
+
+
+## Sample
 ![sample01](https://github.com/mzkii/jbt-simulator/blob/master/screenshots/sample01.png)
 
 ## [WIP] 機能👷
