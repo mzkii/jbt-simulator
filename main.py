@@ -8,6 +8,7 @@ from utils import processing_measure
 from gevent import os
 from pygame.locals import *
 from utils.chart_analyzer import load
+from mutagen.mp3 import MP3
 
 
 @processing_measure.measure
@@ -70,28 +71,38 @@ def play(music, fumen):
     pygame.mixer.music.load(music)
     pygame.mixer.music.play()
 
+    start_time = pygame.time.get_ticks()
+
     while True:
+        diff_time = pygame.time.get_ticks() - start_time
         clock.tick(60)
         screen.fill((0, 0, 0))
         for (y, x) in PANEL_POSITIONS:
             screen.set_clip(x, y, 145, 145)
             screen.blit(background, (0, 0))
 
-        for (positions, frame) in get_marker_frames(notes, pygame.mixer.music.get_pos()):
+        for (positions, frame) in get_marker_frames(notes, diff_time):
             for position in positions:
                 x, y = PANEL_POSITIONS[position - 1]
                 screen.set_clip(x, y, 145, 145)
                 screen.blit(maker_frames[frame], (x, y))
 
+        screen.set_clip()
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
+
             if event.type == TRACK_END:
                 pygame.mixer.music.stop()
                 pygame.mixer.music.play()
+                start_time = pygame.time.get_ticks()
 
-        x, y = PANEL_POSITIONS[0]
-        screen.set_clip(x, y, 145, 145)
+            if event.type == MOUSEBUTTONDOWN and event.button == 1:
+                x, y = event.pos
+                set_time = x * MP3(music).info.length / 700  # sec
+                pygame.mixer.music.play(0, set_time)
+                start_time = pygame.time.get_ticks() - set_time * 1000
+
         screen.blit(font.render('%.1f' % clock.get_fps(), True, (255, 255, 255)), (36, 36))
         pygame.display.update()
 
