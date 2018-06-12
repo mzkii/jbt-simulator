@@ -34,7 +34,8 @@ def load(path):
                 del times[:]
                 del coordinates[:]
 
-    total_time = 0
+    offset = 80  # ms
+    total_time = offset
     bpm = 200
     notes = []
     for i, measure in enumerate(measures):
@@ -48,4 +49,4 @@ def load(path):
                     continue
                 notes.append(Note(c, total_time, [(i % 16) + 1 for i, x in enumerate(coordinates) if x == c], bpm))
 
-    return notes
+    return notes, offset

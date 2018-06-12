@@ -61,7 +61,7 @@ def play(music, fumen):
     background = pygame.image.load(os.path.join('img', 'ble.png')).convert()
     handclap = pygame.mixer.Sound('soundeffects/handclap.wav')
     font = pygame.font.Font(None, 24)
-    notes = load(fumen)
+    notes, offset = load(fumen)
 
     PANEL_POSITIONS = [(y, x)
                        for x in range(0, WINDOW_W, PANEL_SIZE + PANEL_GAP)
@@ -81,7 +81,7 @@ def play(music, fumen):
         screen.fill((0, 0, 0))
 
         bpm_gap = 300
-        scale = 1 + (math.cos(math.pi / 2 / bpm_gap * (diff_time % bpm_gap))) / 10
+        scale = 1 + (math.cos(math.pi / 2 / bpm_gap * ((diff_time + offset) % bpm_gap))) / 10
         anim_background = pygame.transform.rotozoom(background, 0, scale)
         anim_x = (WINDOW_W - anim_background.get_width()) / 2
         anim_y = (WINDOW_H - anim_background.get_height()) / 2
