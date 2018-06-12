@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import glob
 import math
 import sys
 
@@ -7,11 +8,9 @@ import pygame
 from utils import processing_measure
 from gevent import os
 from pygame.locals import *
-from utils.chart_analyzer import load
-from mutagen.mp3 import MP3
+from utils.chart_analyzer import load, get_marker_frames
 
 
-@processing_measure.measure
 def split_image(image):
     imageList = []
     for i in range(0, PANEL_SIZE * 5, PANEL_SIZE):
@@ -35,30 +34,20 @@ def get_nearest_value(list, num):
     return list[idx]
 
 
-def get_marker_frames(notes, music_pos):
-    """
-    概要: music_pos を基準に，パネル座標とマーカーフレームとのセットの配列を返す．
-    @param notes: ノーツデータの配列
-    @param music_pos: 現在再生中の楽曲再生位置
-    @return パネル座標とマーカーフレームとのセットの配列
-            [([13], 24), ([6], 20), ([3, 12], 16), ([16], 8), ([15], 6), ([14], 3)]
-    """
-    MARKER_TIME_PER_FRAME = 36
-    MARKER_FRAME = 25
-    MARKER_TOTAL_TIME = MARKER_TIME_PER_FRAME * MARKER_FRAME
-
-    within_notes = [(note.positions, int(math.floor((music_pos - note.t) / MARKER_TIME_PER_FRAME)))
-                    for note in [note for note in notes if music_pos - MARKER_TOTAL_TIME < note.t <= music_pos]]
-
-    return list(within_notes)
+@processing_measure.measure
+def get_makers(maker_path_list):
+    makers = [split_image(pygame.image.load(maker_frame).convert_alpha()) for maker_frame in maker_path_list]
+    if len(makers) <= 0:
+        raise TypeError('maker images not found.')
+    return makers
 
 
 @processing_measure.measure
 def play(music, fumen):
     screen = pygame.display.get_surface()
     clock = pygame.time.Clock()
-    maker_frames = split_image(pygame.image.load(os.path.join('img', 'sand.png')).convert_alpha())
-    background = pygame.image.load(os.path.join('img', 'ble.png')).convert()
+    makers = get_makers(glob.glob(os.path.join('img', 'makers', '*.png')))
+    background = pygame.image.load(os.path.join('img', 'babckgroundimages', 'blue.png')).convert()
     handclap = pygame.mixer.Sound('soundeffects/handclap.wav')
     font = pygame.font.Font(None, 24)
     notes, offset = load(fumen)
@@ -76,6 +65,8 @@ def play(music, fumen):
     music_length = MP3(music).info.length * 1000  # ms
 
     bpm = 200  # TODO 1ノーツ毎にbpmを設定する
+
+    maker_index = 0
 
     while True:
         diff_time = pygame.time.get_ticks() - start_time
@@ -96,23 +87,31 @@ def play(music, fumen):
             for position in positions:
                 x, y = PANEL_POSITIONS[position - 1]
                 screen.set_clip(x, y, PANEL_SIZE, PANEL_SIZE)
-                screen.blit(maker_frames[frame], (x, y))
+                screen.blit(makers[0][frame], (x, y))
 
         screen.set_clip()
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
-
             if event.type == TRACK_END:
                 pygame.mixer.music.stop()
                 pygame.mixer.music.play()
                 start_time = pygame.time.get_ticks()
-
             if event.type == MOUSEBUTTONDOWN and event.button == 1:
                 x, y = event.pos
                 set_time = x * MP3(music).info.length / WINDOW_W  # sec
                 pygame.mixer.music.play(0, set_time)
                 start_time = pygame.time.get_ticks() - set_time * 1000
+            if event.type == KEYDOWN:
+                if event.key == K_LEFT:
+                    pass
+                if event.key == K_RIGHT:
+                    pass
+                if event.key == K_UP:
+                    print('K_UP')
+                if event.key == K_DOWN:
+                    print('K_DOWN')
 
         screen.blit(
             font.render('%.2f' % clock.get_fps(), True, (255, 255, 255)), (8, 8))

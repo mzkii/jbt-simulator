@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import math
+
 from models.coordinate_time_tuple import CoordinateTimeTuple
 from models.note import Note
 import re
@@ -50,3 +52,21 @@ def load(path):
                 notes.append(Note(c, total_time, [(i % 16) + 1 for i, x in enumerate(coordinates) if x == c], bpm))
 
     return notes, offset
+
+
+def get_marker_frames(notes, music_pos):
+    """
+    概要: music_pos を基準に，パネル座標とマーカーフレームとのセットの配列を返す．
+    @param notes: ノーツデータの配列
+    @param music_pos: 現在再生中の楽曲再生位置
+    @return パネル座標とマーカーフレームとのセットの配列
+            [([13], 24), ([6], 20), ([3, 12], 16), ([16], 8), ([15], 6), ([14], 3)]
+    """
+    MARKER_TIME_PER_FRAME = 36
+    MARKER_FRAME = 25
+    MARKER_TOTAL_TIME = MARKER_TIME_PER_FRAME * MARKER_FRAME
+
+    within_notes = [(note.positions, int(math.floor((music_pos - note.t) / MARKER_TIME_PER_FRAME)))
+                    for note in [note for note in notes if music_pos - MARKER_TOTAL_TIME < note.t <= music_pos]]
+
+    return list(within_notes)
