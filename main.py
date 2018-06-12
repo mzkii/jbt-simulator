@@ -5,6 +5,8 @@ import sys
 
 import numpy as np
 import pygame
+from mutagen.mp3 import MP3
+
 from utils import processing_measure
 from gevent import os
 from pygame.locals import *
