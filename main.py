@@ -56,7 +56,6 @@ def get_marker_frames(notes, music_pos):
 @processing_measure.measure
 def play(music, fumen):
     screen = pygame.display.get_surface()
-    pygame.display.set_caption("jbt-simulator")
     clock = pygame.time.Clock()
     maker_frames = split_image(pygame.image.load(os.path.join('img', 'sand.png')).convert_alpha())
     background = pygame.image.load(os.path.join('img', 'ble.png')).convert()
@@ -74,14 +73,22 @@ def play(music, fumen):
     pygame.mixer.music.play()
 
     start_time = pygame.time.get_ticks()
+    music_length = MP3(music).info.length * 1000  # ms
 
     while True:
         diff_time = pygame.time.get_ticks() - start_time
-        clock.tick(60)
+        clock.tick(30)
         screen.fill((0, 0, 0))
+
+        bpm_gap = 300
+        scale = 1 + (math.cos(math.pi / 2 / bpm_gap * (diff_time % bpm_gap))) / 10
+        anim_background = pygame.transform.rotozoom(background, 0, scale)
+        anim_x = (WINDOW_W - anim_background.get_width()) / 2
+        anim_y = (WINDOW_H - anim_background.get_height()) / 2
+
         for (y, x) in PANEL_POSITIONS:
             screen.set_clip(x, y, PANEL_SIZE, PANEL_SIZE)
-            screen.blit(background, (0, 0))
+            screen.blit(anim_background, (anim_x, anim_y))
 
         for (positions, frame) in get_marker_frames(notes, diff_time):
             for position in positions:
@@ -106,7 +113,10 @@ def play(music, fumen):
                 start_time = pygame.time.get_ticks() - set_time * 1000
 
         screen.blit(
-            font.render('%.1f' % clock.get_fps(), True, (255, 255, 255)), (PANEL_GAP / 2, PANEL_GAP / 2))
+            font.render('%.2f' % clock.get_fps(), True, (255, 255, 255)), (8, 8))
+
+        screen.blit(
+            font.render('%d %%' % (int(100 * diff_time / music_length)), True, (255, 255, 255)), (8, 24))
         pygame.display.update()
 
 
