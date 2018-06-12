@@ -75,13 +75,15 @@ def play(music, fumen):
     start_time = pygame.time.get_ticks()
     music_length = MP3(music).info.length * 1000  # ms
 
+    bpm = 200  # TODO 1ノーツ毎にbpmを設定する
+
     while True:
         diff_time = pygame.time.get_ticks() - start_time
         clock.tick(30)
         screen.fill((0, 0, 0))
 
-        bpm_gap = 300
-        scale = 1 + (math.cos(math.pi / 2 / bpm_gap * ((diff_time + offset) % bpm_gap))) / 10
+        bpm_time = 60 * 1000 / bpm  # 現在のbpmにおける拍動アニメーション時間
+        scale = 1 + (math.cos(math.pi / 2 / bpm_time * ((diff_time + offset) % bpm_time))) / 10
         anim_background = pygame.transform.rotozoom(background, 0, scale)
         anim_x = (WINDOW_W - anim_background.get_width()) / 2
         anim_y = (WINDOW_H - anim_background.get_height()) / 2
