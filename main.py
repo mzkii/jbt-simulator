@@ -14,10 +14,10 @@ from mutagen.mp3 import MP3
 @processing_measure.measure
 def split_image(image):
     imageList = []
-    for i in range(0, 725, 145):
-        for j in range(0, 725, 145):
-            surface = pygame.Surface((145, 145), SRCALPHA)
-            surface.blit(image, (0, 0), (j, i, j + 145, i + 145))
+    for i in range(0, PANEL_SIZE * 5, PANEL_SIZE):
+        for j in range(0, PANEL_SIZE * 5, PANEL_SIZE):
+            surface = pygame.Surface((PANEL_SIZE, PANEL_SIZE), SRCALPHA)
+            surface.blit(image, (0, 0), (j, i, j + PANEL_SIZE, i + PANEL_SIZE))
             surface.set_colorkey((0, 0, 0), RLEACCEL)
             imageList.append(surface)
     return imageList
@@ -58,13 +58,15 @@ def play(music, fumen):
     screen = pygame.display.get_surface()
     pygame.display.set_caption("jbt-simulator")
     clock = pygame.time.Clock()
-    maker_frames = split_image(pygame.image.load(os.path.join('img', 'ripples.png')).convert_alpha())
+    maker_frames = split_image(pygame.image.load(os.path.join('img', 'sand.png')).convert_alpha())
     background = pygame.image.load(os.path.join('img', 'ble.png')).convert()
     handclap = pygame.mixer.Sound('soundeffects/handclap.wav')
-    font = pygame.font.Font(None, 32)
+    font = pygame.font.Font(None, 24)
     notes = load(fumen)
 
-    PANEL_POSITIONS = [(y, x) for x in range(6, 700, 145 + 36) for y in range(6, 700, 145 + 36)]
+    PANEL_POSITIONS = [(y, x)
+                       for x in range(0, WINDOW_W, PANEL_SIZE + PANEL_GAP)
+                       for y in range(0, WINDOW_H, PANEL_SIZE + PANEL_GAP)]
 
     TRACK_END = USEREVENT + 1
     pygame.mixer.music.set_endevent(TRACK_END)
@@ -78,13 +80,13 @@ def play(music, fumen):
         clock.tick(60)
         screen.fill((0, 0, 0))
         for (y, x) in PANEL_POSITIONS:
-            screen.set_clip(x, y, 145, 145)
+            screen.set_clip(x, y, PANEL_SIZE, PANEL_SIZE)
             screen.blit(background, (0, 0))
 
         for (positions, frame) in get_marker_frames(notes, diff_time):
             for position in positions:
                 x, y = PANEL_POSITIONS[position - 1]
-                screen.set_clip(x, y, 145, 145)
+                screen.set_clip(x, y, PANEL_SIZE, PANEL_SIZE)
                 screen.blit(maker_frames[frame], (x, y))
 
         screen.set_clip()
@@ -99,23 +101,25 @@ def play(music, fumen):
 
             if event.type == MOUSEBUTTONDOWN and event.button == 1:
                 x, y = event.pos
-                set_time = x * MP3(music).info.length / 700  # sec
+                set_time = x * MP3(music).info.length / WINDOW_W  # sec
                 pygame.mixer.music.play(0, set_time)
                 start_time = pygame.time.get_ticks() - set_time * 1000
 
-        screen.blit(font.render('%.1f' % clock.get_fps(), True, (255, 255, 255)), (36, 36))
+        screen.blit(
+            font.render('%.1f' % clock.get_fps(), True, (255, 255, 255)), (PANEL_GAP / 2, PANEL_GAP / 2))
         pygame.display.update()
 
 
 @processing_measure.measure
 def pygame_init():
-    pygame.display.set_mode((700, 700), pygame.DOUBLEBUF)
+    pygame.display.set_mode((WINDOW_W, WINDOW_H), pygame.DOUBLEBUF)
     pygame.display.set_caption("jbt-simulator")
     pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=1024)
     pygame.font.init()
 
 
 if __name__ == "__main__":
+    WINDOW_W, WINDOW_H, PANEL_SIZE, PANEL_GAP = (512, 512, 110, 24)
     if len(sys.argv) == 3:
         pygame_init()
         play(sys.argv[1], sys.argv[2])
