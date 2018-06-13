@@ -1,11 +1,58 @@
-## About
-![icon](https://github.com/mzkii/jbt-simulator/blob/master/img/icon.png)
+## jbt-simulator
+<img src="https://github.com/mzkii/jbt-simulator/blob/master/img/icon.png" width="128px">
 
 [#memo2](http://yosh52.web.fc2.com/jubeat/fumenformat.html) 形式の譜面を mac/windows 上で再生するシミュレータです．
 
-
-## Sample
+## Demo
 <img src="https://github.com/mzkii/jbt-simulator/blob/master/screenshots/sample01.png" width="512px">
+
+## Example
+
+### 譜面と楽曲を準備する
+[#memo2](http://yosh52.web.fc2.com/jubeat/fumenformat.html) 形式の譜面と，それに対応するMP3ファイルを用意してください．
+
+譜面データは [cosmos memo](https://www53.atwiki.jp/cosmos_memo/) さんのサイトが参考になります．
+
+### 環境
+- python 3.6.0
+
+- pygame 1.9.3
+
+- gevent 1.3.3
+
+- greenlet 0.4.13
+
+- mutagen 1.40.0
+
+- numpy 1.14.5
+
+#### 注意
+mac 環境下で,pyanvやanacondaを使って環境構築している場合，
+
+pygameはキーボードイベントを取得することができません．
+
+
+### 実行
+
+`main.py` 実行時に `楽曲ファイル` `譜面ファイル` の順にパスを渡します．
+
+譜面ファイルのフォーマットは `utf-8` のテキストファイルです．
+
+ホールド譜面は現在非対応です．
+
+```
+$ python main.py music/hogehoge.mp3 fumen/fugafuga.jbt
+```
+
+### 機能
+
+#### 楽曲シーク
+
+画面の横軸が，楽曲の再生位置とリンクしています．
+
+楽曲の再生時間を100%として，画面左端をタップすると0%の位置へ，中央をタップすると50%の位置へ，右端をタップすると100%の位置へシークします．
+
+楽曲の再生位置を移動すると同時に，マーカーの再生位置も自動的に修正されます．
 
 ## [WIP] 機能👷
 基本的に，jubeatLab に準拠する．
