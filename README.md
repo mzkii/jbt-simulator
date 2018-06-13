@@ -5,7 +5,7 @@
 
 
 ## Sample
-![sample01](https://github.com/mzkii/jbt-simulator/blob/master/screenshots/sample01.png)
+<img src="https://github.com/mzkii/jbt-simulator/blob/master/screenshots/sample01.png" width="512px">
 
 ## [WIP] 機能👷
 基本的に，jubeatLab に準拠する．
